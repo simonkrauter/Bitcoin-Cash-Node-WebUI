@@ -10,7 +10,7 @@ It shows:
 Screenshot
 ----------
 
-<a href="https://github.com/trustable-code/BitcoinCashNodeWebUI/blob/master/screenshot.png"><img src="https://raw.githubusercontent.com/trustable-code/BitcoinCashNodeWebUI/master/screenshot.png" width="500"></a>
+<a href="https://github.com/trustable-code/BitcoinCashNodeWebUI/blob/master/screenshot.png"><img src="https://raw.githubusercontent.com/trustable-code/BitcoinCashNodeWebUI/master/screenshot.png" width="350"></a>
 
 Setup Guide
 -----------
