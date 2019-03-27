@@ -1,0 +1,101 @@
+body {
+  text-align: center;
+  margin: 0em;
+  color: #E5E5E5;
+  background: #111821;
+  font-family: sans-serif;
+}
+
+a {
+  color: #00DAEA;
+  text-decoration: none;
+}
+
+h1 {
+  font-weight: normal;
+  text-align: center;
+  font-size: 170%;
+}
+
+h2 {
+  font-weight: bold;
+  margin-top: 1.4em;
+  margin-bottom: 0.8em;
+  font-size: 120%;
+}
+
+.content {
+  display: inline-block;
+  max-width: 31em;
+  text-align: left;
+  margin-top: 0.3em;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+
+.error {
+  color: red;
+  text-align: center;
+  text-align: left;
+  margin-top: 0.5em;
+}
+
+.field {
+  display: inline-block;
+}
+
+.col0 {
+  display: inline-block;
+  min-width: 8em;
+}
+
+.col1 {
+  display: inline-block;
+  min-width: 7em;
+}
+
+.field, .row0, .row1 {
+  margin-bottom: 0.3em;
+}
+
+.UploadLabel {
+  border-bottom: solid 1px red;
+}
+
+.DownloadLabel {
+  border-bottom: solid 1px lime;
+}
+
+#UploadRateChartMax, #DownloadRateChartMax {
+  display: inline-block;
+  min-width: 60px;
+  border-top: 1px solid #595959;
+  font-size: 80%;
+  vertical-align: top;
+  text-align: right;
+}
+
+.chart {
+  margin-top: 1em;
+}
+
+
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: center;
+  font-weight: bold;
+}
+
+th, td {
+  padding-left: 0.3em; padding-right: 0.3em;
+  padding-top: 0.15em;
+  padding-bottom: 0.15em;
+  border-style: solid;
+  border-width: 0.1em;
+  border-color: #6D6D6D;
+}
+

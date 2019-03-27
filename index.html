@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+<title>Bitcoin Cash Node WebUI</title>
+<link rel="shortcut icon" href="https://www.bitcoincash.org/img/favicon/favicon-96x96.png">
+<link rel="stylesheet" href="style.css" />
+<meta name="viewport" content="width=400" />
+</head>
+
+<body>
+
+<div class="content">
+
+<h1>Bitcoin Cash Node WebUI</h1>
+
+<div id="offline" class="error">Connection interrupted</div>
+
+<h2>General</h2>
+
+<div class="field">
+<span class="col0">Version:</span>
+<span class="col1" id="Version">&hellip;</span>
+</div>
+
+<div class="field">
+<span class="col0">Blocks:</span>
+<span class="col1" id="Blocks">&hellip;</span>
+</div>
+
+<div class="field">
+<span class="col0">Blockchain size:</span>
+<span class="col1" id="BlockchainSize">&hellip;</span>
+</div>
+
+<div class="field">
+<span class="col0">Disk free:</span>
+<span class="col1" id="DiskFree">&hellip;</span>
+</div>
+
+<div class="field">
+<span class="col0">System uptime:</span>
+<span class="col1" id="Uptime">&hellip;</span>
+</div>
+
+<div class="field">
+<span class="col0">Connections:</span>
+<span class="col1" id="Connections">&hellip;</span>
+</div>
+
+<div class="field error" id="Errors"></div>
+
+
+<h2>Connections</h2>
+
+<table>
+<thead>
+<tr>
+<th>IP</th>
+<th>Client</th>
+</tr>
+</thead>
+<tbody id="Peers"></tbody>
+</table>
+
+
+<h2>Network Usage</h2>
+
+<div class="row0">
+<span class="col0"></span>
+<span class="col1"><span class="UploadLabel">Upload</span></span>
+<span class="col1"><span class="DownloadLabel">Download</span></span>
+</div>
+
+<div class="row1">
+<span class="col0">Traffic:</span>
+<span class="col1" id="Upload">&hellip;</span>
+<span class="col1" id="Download">&hellip;</span>
+</div>
+
+<div class="row1">
+<span class="col0">Average rate:</span>
+<span class="col1" id="AvgUpstream">&hellip;</span>
+<span class="col1" id="AvgDownstream">&hellip;</span>
+</div>
+
+<div class="row1">
+<span class="col0">Current rate:</span>
+<span class="col1" id="CurrentUpstream">&hellip;</span>
+<span class="col1" id="CurrentDownstream">&hellip;</span>
+</div>
+
+</div>
+
+<div class="chart">
+<span id="UploadRateChartMax"></span>
+<canvas id="UploadRateChart"></canvas>
+</div>
+
+<div class="chart">
+<span id="DownloadRateChartMax"></span>
+<canvas id="DownloadRateChart"></canvas>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
