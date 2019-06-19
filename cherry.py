@@ -6,7 +6,8 @@ import json
 import math
 
 BitcoinDataPath = '/home/bitcoin/.bitcoin/'
-BitcoinCLIPath = '/home/bitcoin/bitcoin-cli.sh'
+BitcoinCLIPath = './bitcoin-cli.sh'
+Port = 81
 
 def executeCmd(command):
   p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -108,7 +109,7 @@ class MyWebServer(object):
 
 cherrypy.config.update({
     'server.socket_host' : '0.0.0.0',
-    'server.socket_port' : 81,
+    'server.socket_port' : Port,
   })
 
 conf = {
