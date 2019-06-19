@@ -93,7 +93,7 @@ class MyWebServer(object):
 
   @cherrypy.expose
   def general_json(self):
-    getinfo = executeCmd([BitcoinCLIPath, 'getinfo'])
+    getinfo = executeCmd([BitcoinCLIPath, '-getinfo'])
     data = {}
     if getinfo == '':
       data['errors'] = 'bitcoind is not running or not yet ready'

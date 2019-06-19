@@ -188,24 +188,24 @@ function ApplyPeers(peers) {
 		a.innerHTML = ip;
 		td.appendChild(a);
 		tr.appendChild(td);
-		
+
 		td = document.createElement('TD');
 		td.innerHTML = peer.subver.substr(1, peer.subver.length - 2);
 		tr.appendChild(td);
-		
+
 		tbody.appendChild(tr);
 	}
 }
-	
-function ApplyGeneral(data) {	
+
+function ApplyGeneral(data) {
 	ByID('BlockchainSize').innerHTML = FormatGB(data.BlockchainSize) || '';
 	ByID('DiskFree').innerHTML = FormatGB(data.DiskFree) || '';
 	ByID('Version').innerHTML = data.version || '';
 	ByID('Blocks').innerHTML = data.blocks || '';
 	ByID('Connections').innerHTML = data.connections || '';
-	ByID('Errors').innerHTML = data.errors;
+	ByID('Errors').innerHTML = data.warnings;
 	ByID('Uptime').innerHTML = FormatFloat(data.Uptime / 60 / 60 / 24) + ' days';
-	
+
 	ApplyPeers(data.Peers);
 }
 
