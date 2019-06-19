@@ -39,7 +39,7 @@ function UpdateTraffic(WaitTime) {
 	}
 	Request.send();
 	setTimeout(function(){ UpdateTraffic(TrafficUpdateInterval); }, TrafficUpdateInterval * 1000);
-	
+
 	var OfflineDiv = document.getElementById('offline');
 	if((new Date()) - LastUpdateDate > TrafficUpdateInterval * 1000 * 2)
 		OfflineDiv.style.display = '';
@@ -66,12 +66,12 @@ var MaxDownloadRate = -1;
 var LastUpdateDate;
 var AvgRateMaxFactor = 1.5;
 
-function ApplyTraffic(data) {	
+function ApplyTraffic(data) {
 	LastUpdateDate = new Date();
-	
+
 	var AvgDownstream = data.Download / data.Uptime
 	var AvgUpstream = data.Upload / data.Uptime
-		
+
 	if(MaxUploadRate < AvgUpstream * AvgRateMaxFactor)
 		MaxUploadRate = AvgUpstream * AvgRateMaxFactor;
 	if(MaxDownloadRate < AvgDownstream * AvgRateMaxFactor)
@@ -79,22 +79,22 @@ function ApplyTraffic(data) {
 
 	var DisplayUploadRate = GetNewDisplayValue(UploadRates);
 	var DisplayDownloadRate = GetNewDisplayValue(DownloadRates);
-	
+
 	UploadRates.push([data.CurrentUpstream, DisplayUploadRate, GetAvg(UploadRates)]);
 	DownloadRates.push([data.CurrentDownstream, DisplayDownloadRate, GetAvg(DownloadRates)]);
-	
+
 	var MaxChartWidth = window.innerWidth - 10 - 60;
 	while(UploadRates.length > MaxChartWidth)
 		UploadRates.shift();
 	while(DownloadRates.length > MaxChartWidth)
 		DownloadRates.shift();
-	
+
 	MaxUploadRate = Math.max(MaxUploadRate, DisplayUploadRate);
 	MaxDownloadRate = Math.max(MaxDownloadRate, DisplayDownloadRate);
 
 	MaxUploadRate = RoundMaxRate(MaxUploadRate);
 	MaxDownloadRate = RoundMaxRate(MaxDownloadRate);
-						
+
 	ByID('Download').innerHTML = FormatGB(data.Download);
 	ByID('Upload').innerHTML = FormatGB(data.Upload);
 	ByID('AvgDownstream').innerHTML = FormatkB(AvgDownstream) + '/s';
@@ -104,7 +104,7 @@ function ApplyTraffic(data) {
 	ByID('UploadRateChartMax').innerHTML = FormatkB(MaxUploadRate) + '/s';
 	ByID('DownloadRateChartMax').innerHTML = FormatkB(MaxDownloadRate) + '/s';
 	document.title = '(' + FormatkB(DisplayUploadRate) + '/s) Bitcoin Node';
-		
+
 	AddPointToChart('UploadRateChart', UploadRates, MaxUploadRate, 'red');
 	AddPointToChart('DownloadRateChart', DownloadRates, MaxDownloadRate, 'lime');
 }
@@ -129,15 +129,15 @@ function GetAvg(DataPoints) {
 	return Sum / DataPoints.length;
 }
 
-function AddPointToChart(CanvasID, DataPoints, MaxRate, Color) {	
+function AddPointToChart(CanvasID, DataPoints, MaxRate, Color) {
 	var Canvas = document.getElementById(CanvasID);
 	Canvas.height = ChartHeight;
 	Canvas.width = DataPoints.length + 1.5;
 	var Context = Canvas.getContext('2d');
-	Context.fillStyle = '#070707'; 
+	Context.fillStyle = '#070707';
 	Context.fillRect(0, 0, Canvas.width, Canvas.height);
 	Context.lineWidth = 1;
-	
+
 	// Current:
 	Context.strokeStyle = Color;
 	for(var i = 0; i < DataPoints.length; i++) {
@@ -147,7 +147,7 @@ function AddPointToChart(CanvasID, DataPoints, MaxRate, Color) {
 		Context.lineTo(i + 1.5, Canvas.height);
 		Context.stroke();
 	}
-	
+
 	// Avg:
 	Context.strokeStyle = 'white';
 	for(var i = 0; i < DataPoints.length - 1; i++) {
@@ -157,10 +157,10 @@ function AddPointToChart(CanvasID, DataPoints, MaxRate, Color) {
 		Context.moveTo(i + 1.5, Canvas.height - y1);
 		Context.lineTo(i + 2.5, Canvas.height - y2);
 		Context.stroke();
-	}	
+	}
 }
 
-function GetNewDisplayValue(DataPoints) {	
+function GetNewDisplayValue(DataPoints) {
 	if(DataPoints.length == 0)
 		return 0;
 	var i = DataPoints.length - 1;
@@ -175,12 +175,12 @@ function GetNewDisplayValue(DataPoints) {
 }
 
 function ApplyPeers(peers) {
-	var tbody = document.getElementById('Peers');	
+	var tbody = document.getElementById('Peers');
 	tbody.innerHTML = '';
 	for(var i = 0; i < peers.length; i++) {
 		var peer = peers[i];
 		var tr = document.createElement('TR');
-		
+
 		var td = document.createElement('TD');
 		var a = document.createElement('A');
 		var ip = peer.addr.substr(0, peer.addr.indexOf(':'));
