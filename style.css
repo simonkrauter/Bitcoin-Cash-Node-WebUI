@@ -19,8 +19,8 @@ h1 {
 
 h2 {
   font-weight: bold;
-  margin-top: 1.4em;
-  margin-bottom: 0.8em;
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
   font-size: 120%;
 }
 
@@ -83,6 +83,7 @@ h2 {
 table {
   border-spacing: 0;
   border-collapse: collapse;
+  font-size: 85%;
 }
 
 th {
@@ -92,8 +93,8 @@ th {
 
 th, td {
   padding-left: 0.3em; padding-right: 0.3em;
-  padding-top: 0.15em;
-  padding-bottom: 0.15em;
+  padding-top: 0.12em;
+  padding-bottom: 0.12em;
   border-style: solid;
   border-width: 0.1em;
   border-color: #6D6D6D;
