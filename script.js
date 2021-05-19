@@ -1,6 +1,6 @@
-var trafficUpdateInterval = 2; // seconds
-var shortTermAverageCount = 3;
-var chartHeight = 120; // pixel
+const trafficUpdateInterval = 2; // seconds
+const shortTermAverageCount = 4;
+const chartHeight = 120; // pixel
 
 function byId(id) {
 	return document.getElementById(id);
@@ -86,8 +86,8 @@ function ApplyTraffic(data) {
 		downloadRatePoints.shift();
   }
 
-  maxDisplayUploadRate = calculateMaxDisplayRate(maxDisplayUploadRate, totalAverageUploadRate, shortTermAverageUploadRate);
-  maxDisplayDownloadRate = calculateMaxDisplayRate(maxDisplayDownloadRate, totalAverageDownloadRate, shortTermAverageDownloadRate);
+  maxDisplayUploadRate = calculateMaxDisplayRate(maxDisplayUploadRate, totalAverageUploadRate, shortTermAverageUploadRate, longTermAverageUploadRate);
+  maxDisplayDownloadRate = calculateMaxDisplayRate(maxDisplayDownloadRate, totalAverageDownloadRate, shortTermAverageDownloadRate, longTermAverageDownloadRate);
 
 	byId("Download").innerHTML = formatGB(data.Download);
 	byId("Upload").innerHTML = formatGB(data.Upload);
@@ -119,12 +119,12 @@ function calculateAverage(dataPoints, maxCount) {
 	return sum / count;
 }
 
-function calculateMaxDisplayRate(maxDisplayRate, totalAverageRate, shortTermAverageRate) {
+function calculateMaxDisplayRate(maxDisplayRate, totalAverageRate, shortTermAverageRate, longTermAverageRate) {
   // compare with total average
   maxDisplayRate = Math.max(maxDisplayRate, totalAverageRate * 1.5);
 
   // compare short long term average
-  maxDisplayRate = Math.max(maxDisplayRate, Math.min(shortTermAverageRate, totalAverageRate * 5));
+  maxDisplayRate = Math.max(maxDisplayRate, Math.min(shortTermAverageRate, longTermAverageRate * 3));
 
   // round
 	var x = 1;
