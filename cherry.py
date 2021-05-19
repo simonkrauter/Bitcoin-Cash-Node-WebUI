@@ -105,6 +105,11 @@ class MyWebServer(object):
     data['Peers'] = json.loads(executeCmd([BitcoinCLIPath, 'getpeerinfo']))
     return json.dumps(data)
 
+  @cherrypy.expose
+  def favicon_ico(self):
+    #  return ''
+    raise cherrypy.HTTPRedirect('https://www.bitcoincash.org/img/favicon/favicon-96x96.png')
+
   index.exposed = True
 
 cherrypy.config.update({
