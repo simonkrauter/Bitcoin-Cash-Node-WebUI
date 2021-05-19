@@ -24,13 +24,10 @@ h2 {
   font-size: 120%;
 }
 
-.content {
+.contentBlock {
   display: inline-block;
   max-width: 31em;
   text-align: left;
-  margin-top: 0.3em;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
 }
 
 .error {
@@ -69,7 +66,7 @@ h2 {
 #UploadRateChartMax, #DownloadRateChartMax {
   display: inline-block;
   min-width: 60px;
-  border-top: 1px solid #595959;
+  border-top: 1px solid #8E8E8E;
   font-size: 80%;
   vertical-align: top;
   text-align: right;
