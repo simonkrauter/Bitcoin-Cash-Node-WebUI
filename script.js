@@ -1,12 +1,12 @@
-var TrafficUpdateInterval = 2; // seconds
-var DisplayAveragePoints = 3;
-var ChartHeight = 120; // pixel
+var trafficUpdateInterval = 2; // seconds
+var shortTermAverageCount = 3;
+var chartHeight = 120; // pixel
 
-function ByID(id) {
+function byId(id) {
 	return document.getElementById(id);
 }
 
-function FormatFloat(Value, Decimals) {
+function formatFloat(Value, Decimals) {
 	if(!Decimals)
 	{
 		if(Value < 10)
@@ -18,178 +18,173 @@ function FormatFloat(Value, Decimals) {
 	return (Math.round(Value * x) / x);
 }
 
-function FormatkB(Value) {
-	return FormatFloat(Value / 1000) + ' kB';
+function formatkB(Value) {
+	return formatFloat(Value / 1000) + " kB";
 }
 
-function FormatMB(Value) {
-	return FormatFloat(Value / 1000000) + ' MB';
+function formatMB(Value) {
+	return formatFloat(Value / 1000000) + " MB";
 }
 
-function FormatGB(Value) {
-	return FormatFloat(Value / 1000000000, 1) + ' GB';
+function formatGB(Value) {
+	return formatFloat(Value / 1000000000, 1) + " GB";
 }
 
-function UpdateTraffic(WaitTime) {
-	var Request = new XMLHttpRequest();
-	Request.open('GET', 'traffic_json?WaitTime=' + WaitTime, true);
-	Request.onreadystatechange = function() {
-		if(Request.readyState == 4 && Request.status == 200)
-			ApplyTraffic(JSON.parse(Request.responseText));
-	}
-	Request.send();
-	setTimeout(function(){ UpdateTraffic(TrafficUpdateInterval); }, TrafficUpdateInterval * 1000);
+function updateTraffic(WaitTime) {
+	var request = new XMLHttpRequest();
+	request.open("GET", "traffic_json?WaitTime=" + WaitTime, true);
+	request.onreadystatechange = function() {
+		if(request.readyState == 4 && request.status == 200)
+			ApplyTraffic(JSON.parse(request.responseText));
+	};
+	request.send();
+	setTimeout(function(){ updateTraffic(trafficUpdateInterval); }, trafficUpdateInterval * 1000);
 
-	var OfflineDiv = document.getElementById('offline');
-	if((new Date()) - LastUpdateDate > TrafficUpdateInterval * 1000 * 2)
-		OfflineDiv.style.display = '';
+	var offlineDiv = document.getElementById("offline");
+	if((new Date()) - lastUpdateDate > trafficUpdateInterval * 1000 * 2)
+		offlineDiv.style.display = "";
 	else
-		OfflineDiv.style.display = 'none';
+		offlineDiv.style.display = "none";
 }
 
-function UpdateGeneral() {
-	var Request = new XMLHttpRequest();
-	Request.open('GET', 'general_json', true);
-	Request.onreadystatechange = function() {
-		if(Request.readyState == 4 && Request.status == 200)
-			ApplyGeneral(JSON.parse(Request.responseText));
-	}
-	Request.send();
-	setTimeout(function(){ UpdateGeneral(); }, 30000);
+function refreshData() {
+	var request = new XMLHttpRequest();
+	request.open("GET", "general_json", true);
+	request.onreadystatechange = function() {
+		if(request.readyState == 4 && request.status == 200)
+			updateUI(JSON.parse(request.responseText));
+	};
+	request.send();
+	setTimeout(function(){ refreshData(); }, 30000);
 }
 
 
-var UploadRates = [];
-var DownloadRates = [];
-var MaxUploadRate = -1;
-var MaxDownloadRate = -1;
-var LastUpdateDate;
-var AvgRateMaxFactor = 1.5;
+var uploadRatePoints = [];
+var downloadRatePoints = [];
+var maxDisplayUploadRate = -1;
+var maxDisplayDownloadRate = -1;
+var lastUpdateDate;
 
 function ApplyTraffic(data) {
-	LastUpdateDate = new Date();
+	lastUpdateDate = new Date();
 
-	var AvgDownstream = data.Download / data.Uptime
-	var AvgUpstream = data.Upload / data.Uptime
+	var totalAverageDownloadRate = data.Download / data.Uptime;
+	var totalAverageUploadRate = data.Upload / data.Uptime;
 
-	if(MaxUploadRate < AvgUpstream * AvgRateMaxFactor)
-		MaxUploadRate = AvgUpstream * AvgRateMaxFactor;
-	if(MaxDownloadRate < AvgDownstream * AvgRateMaxFactor)
-		MaxDownloadRate = AvgDownstream * AvgRateMaxFactor;
+	var shortTermAverageUploadRate = calculateAverage(uploadRatePoints, shortTermAverageCount);
+	var shortTermAverageDownloadRate = calculateAverage(downloadRatePoints, shortTermAverageCount);
 
-	var DisplayUploadRate = GetNewDisplayValue(UploadRates);
-	var DisplayDownloadRate = GetNewDisplayValue(DownloadRates);
+	var longTermAverageUploadRate = calculateAverage(uploadRatePoints, uploadRatePoints.length);
+	var longTermAverageDownloadRate = calculateAverage(downloadRatePoints, downloadRatePoints.length);
 
-	UploadRates.push([data.CurrentUpstream, DisplayUploadRate, GetAvg(UploadRates)]);
-	DownloadRates.push([data.CurrentDownstream, DisplayDownloadRate, GetAvg(DownloadRates)]);
+	uploadRatePoints.push([data.CurrentUpstream, shortTermAverageUploadRate, longTermAverageUploadRate]);
+	downloadRatePoints.push([data.CurrentDownstream, shortTermAverageDownloadRate, longTermAverageDownloadRate]);
 
-	var MaxChartWidth = window.innerWidth - 10 - 60;
-	while(UploadRates.length > MaxChartWidth)
-		UploadRates.shift();
-	while(DownloadRates.length > MaxChartWidth)
-		DownloadRates.shift();
+	// remove old points
+	while(uploadRatePoints.length > window.innerWidth - 70) {
+		uploadRatePoints.shift();
+		downloadRatePoints.shift();
+  }
 
-	MaxUploadRate = Math.max(MaxUploadRate, DisplayUploadRate);
-	MaxDownloadRate = Math.max(MaxDownloadRate, DisplayDownloadRate);
+  maxDisplayUploadRate = calculateMaxDisplayRate(maxDisplayUploadRate, totalAverageUploadRate, shortTermAverageUploadRate);
+  maxDisplayDownloadRate = calculateMaxDisplayRate(maxDisplayDownloadRate, totalAverageDownloadRate, shortTermAverageDownloadRate);
 
-	MaxUploadRate = RoundMaxRate(MaxUploadRate);
-	MaxDownloadRate = RoundMaxRate(MaxDownloadRate);
+	byId("Download").innerHTML = formatGB(data.Download);
+	byId("Upload").innerHTML = formatGB(data.Upload);
+	byId("AvgDownstream").innerHTML = formatkB(totalAverageDownloadRate) + "/s";
+	byId("AvgUpstream").innerHTML = formatkB(totalAverageUploadRate) + "/s";
+	byId("CurrentDownstream").innerHTML = formatkB(shortTermAverageDownloadRate) + "/s";
+	byId("CurrentUpstream").innerHTML = formatkB(shortTermAverageUploadRate) + "/s";
+	byId("UploadRateChartMax").innerHTML = formatkB(maxDisplayUploadRate) + "/s";
+	byId("DownloadRateChartMax").innerHTML = formatkB(maxDisplayDownloadRate) + "/s";
+	document.title = "(" + formatkB(shortTermAverageUploadRate) + "/s) Bitcoin Node";
 
-	ByID('Download').innerHTML = FormatGB(data.Download);
-	ByID('Upload').innerHTML = FormatGB(data.Upload);
-	ByID('AvgDownstream').innerHTML = FormatkB(AvgDownstream) + '/s';
-	ByID('AvgUpstream').innerHTML = FormatkB(AvgUpstream) + '/s';
-	ByID('CurrentDownstream').innerHTML = FormatkB(DisplayDownloadRate) + '/s';
-	ByID('CurrentUpstream').innerHTML = FormatkB(DisplayUploadRate) + '/s';
-	ByID('UploadRateChartMax').innerHTML = FormatkB(MaxUploadRate) + '/s';
-	ByID('DownloadRateChartMax').innerHTML = FormatkB(MaxDownloadRate) + '/s';
-	document.title = '(' + FormatkB(DisplayUploadRate) + '/s) Bitcoin Node';
-
-	AddPointToChart('UploadRateChart', UploadRates, MaxUploadRate, 'red');
-	AddPointToChart('DownloadRateChart', DownloadRates, MaxDownloadRate, 'lime');
+	drawTrafficChart("UploadRateChart", uploadRatePoints, maxDisplayUploadRate, "red");
+	drawTrafficChart("DownloadRateChart", downloadRatePoints, maxDisplayDownloadRate, "lime");
 }
 
-function RoundMaxRate(MaxRate) {
+function calculateAverage(dataPoints, maxCount) {
+	if(dataPoints.length == 0)
+		return 0;
+	if(dataPoints.length == 0)
+		return 0;
+	var i = dataPoints.length - 1;
+	var sum = 0;
+	var count = 0;
+	while(count < maxCount && i >= 0) {
+		sum = sum + dataPoints[i][0];
+		count++;
+		i--;
+	}
+	return sum / count;
+}
+
+function calculateMaxDisplayRate(maxDisplayRate, totalAverageRate, shortTermAverageRate) {
+  // compare with total average
+  maxDisplayRate = Math.max(maxDisplayRate, totalAverageRate * 1.5);
+
+  // compare short long term average
+  maxDisplayRate = Math.max(maxDisplayRate, Math.min(shortTermAverageRate, totalAverageRate * 5));
+
+  // round
 	var x = 1;
-	var r = MaxRate;
+	var r = maxDisplayRate;
 	while(r >= 8) {
 		r = r / 10;
 		x = x * 10;
 	}
-	return Math.ceil(MaxRate / x) * x;
+	maxDisplayRate = Math.ceil(maxDisplayRate / x) * x;
+
+  return maxDisplayRate;
 }
 
-function GetAvg(DataPoints) {
-	if(DataPoints.length == 0)
-		return 0;
-	var Sum = 0
-	for(var i = 0; i < DataPoints.length; i++) {
-		Sum = Sum + DataPoints[i][0];
-	}
-	return Sum / DataPoints.length;
-}
+function drawTrafficChart(canvasId, dataPoints, maxDisplayRate, color) {
+	var canvas = document.getElementById(canvasId);
+	canvas.height = chartHeight;
+	canvas.width = dataPoints.length + 1.5;
+	var context = canvas.getContext("2d");
+	context.fillStyle = "#070707";
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.lineWidth = 1;
 
-function AddPointToChart(CanvasID, DataPoints, MaxRate, Color) {
-	var Canvas = document.getElementById(CanvasID);
-	Canvas.height = ChartHeight;
-	Canvas.width = DataPoints.length + 1.5;
-	var Context = Canvas.getContext('2d');
-	Context.fillStyle = '#070707';
-	Context.fillRect(0, 0, Canvas.width, Canvas.height);
-	Context.lineWidth = 1;
-
-	// Current:
-	Context.strokeStyle = Color;
-	for(var i = 0; i < DataPoints.length; i++) {
-		var y = DataPoints[i][1] / MaxRate * Canvas.height;
-		Context.beginPath();
-		Context.moveTo(i + 1.5, Canvas.height - y);
-		Context.lineTo(i + 1.5, Canvas.height);
-		Context.stroke();
+	// short term average
+	context.strokeStyle = color;
+	for(var i = 0; i < dataPoints.length; i++) {
+		var y = dataPoints[i][1] / maxDisplayRate * canvas.height;
+		context.beginPath();
+		context.moveTo(i + 1.5, canvas.height - y);
+		context.lineTo(i + 1.5, canvas.height);
+		context.stroke();
 	}
 
-	// Avg:
-	Context.strokeStyle = 'white';
-	for(var i = 0; i < DataPoints.length - 1; i++) {
-		var y1 = Math.round(DataPoints[i][2] / MaxRate * Canvas.height - 0.5) + 0.5;
-		var y2 = Math.round(DataPoints[i + 1][2] / MaxRate * Canvas.height - 0.5) + 0.5;
-		Context.beginPath();
-		Context.moveTo(i + 1.5, Canvas.height - y1);
-		Context.lineTo(i + 2.5, Canvas.height - y2);
-		Context.stroke();
+	// long term average
+	context.strokeStyle = "white";
+	for(var i = 0; i < dataPoints.length - 1; i++) {
+		var y1 = Math.round(dataPoints[i][2] / maxDisplayRate * canvas.height - 0.5) + 0.5;
+		var y2 = Math.round(dataPoints[i + 1][2] / maxDisplayRate * canvas.height - 0.5) + 0.5;
+		context.beginPath();
+		context.moveTo(i + 1.5, canvas.height - y1);
+		context.lineTo(i + 2.5, canvas.height - y2);
+		context.stroke();
 	}
 }
 
-function GetNewDisplayValue(DataPoints) {
-	if(DataPoints.length == 0)
-		return 0;
-	var i = DataPoints.length - 1;
-	var AvgSum = 0;
-	var AvgCount = 0;
-	while(AvgCount < DisplayAveragePoints && i >= 0) {
-		AvgSum = AvgSum + DataPoints[i][0];
-		AvgCount++;
-		i--;
-	}
-	return AvgSum / AvgCount;
-}
-
-function ApplyPeers(peers) {
-	var tbody = document.getElementById('Peers');
-	tbody.innerHTML = '';
+function updatePeers(peers) {
+	var tbody = document.getElementById("Peers");
+	tbody.innerHTML = "";
 	for(var i = 0; i < peers.length; i++) {
 		var peer = peers[i];
-		var tr = document.createElement('TR');
+		var tr = document.createElement("TR");
 
-		var td = document.createElement('TD');
-		var a = document.createElement('A');
-		var ip = peer.addr.substr(0, peer.addr.indexOf(':'));
-		a.href = 'http://' + ip;
+		var td = document.createElement("TD");
+		var a = document.createElement("A");
+		var ip = peer.addr.substr(0, peer.addr.indexOf(":"));
+		a.href = "http://" + ip;
 		a.innerHTML = ip;
 		td.appendChild(a);
 		tr.appendChild(td);
 
-		td = document.createElement('TD');
+		td = document.createElement("TD");
 		td.innerHTML = peer.subver.substr(1, peer.subver.length - 2);
 		tr.appendChild(td);
 
@@ -197,19 +192,19 @@ function ApplyPeers(peers) {
 	}
 }
 
-function ApplyGeneral(data) {
-	ByID('BlockchainSize').innerHTML = FormatGB(data.BlockchainSize) || '';
-	ByID('DiskFree').innerHTML = FormatGB(data.DiskFree) || '';
-	ByID('Version').innerHTML = data.version || '';
-	ByID('Blocks').innerHTML = data.blocks || '';
-	ByID('Connections').innerHTML = data.connections || '';
-	ByID('Errors').innerHTML = data.warnings;
-	ByID('Uptime').innerHTML = FormatFloat(data.Uptime / 60 / 60 / 24) + ' days';
+function updateUI(data) {
+	byId("BlockchainSize").innerHTML = formatGB(data.BlockchainSize) || "";
+	byId("DiskFree").innerHTML = formatGB(data.DiskFree) || "";
+	byId("Version").innerHTML = data.version || "";
+	byId("Blocks").innerHTML = data.blocks || "";
+	byId("Connections").innerHTML = data.connections || "";
+	byId("Errors").innerHTML = data.warnings;
+	byId("Uptime").innerHTML = formatFloat(data.Uptime / 60 / 60 / 24) + " days";
 
-	ApplyPeers(data.Peers);
+	updatePeers(data.Peers);
 }
 
-UpdateTraffic(1);
-UpdateGeneral();
+updateTraffic(1);
+refreshData();
 
 
